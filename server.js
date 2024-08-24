@@ -1,51 +1,41 @@
-const exprress = require("express");
-const cors = require('cors');
-const router = require("./routes/motorRoutes");
-const app = exprress();
+const express = require("express");
+const cors = require("cors");
+// const router = require("./routes/auth.router");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 
-app.use(cors())
+const authRouter = require("./routes/auth.router");
+// const router = require("./routes/auth.router");
 
-app.use(exprress.json());
-app.use(exprress.urlencoded({extended:false}));
+ 
+dotenv.config();
+const app = express();
+const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/crm";
 
-
-app.use(router)
-
-
-
-
-app.post("/api/data", (req, res, next) => {
-    console.log(req.body);   
-    res.status(200).send("Data received")
-});
+app.use(cors());
+app.use(express.json());
+app.use('/crm', authRouter);
+// app.use(router);
 
 
+// app.use("/", (req,res)=> {
+//     res.send(`<h1>home</h1>`)
+// })
 
+const PORT = process.env.PORT || 5053;
 
-
-// app.use(mainRoutes);
-
-// app.use("/", (req, res, next) => {
-//     console.log("Midlwaves");
-//     res.send("<h1>Bismillah</h1>")
-//     next();
-// });
-
-
-app.use((req, res, )=> {
-    res.status(404).send( '<h1>NOT FOUND</h1>')
-})
-
-const PORT = process.env.PORT  || 5052;
-
-
-app.listen(PORT, ()=> {
-    console.log('Running:', PORT);
-});
-
-
-
-// app.use("/students", (req, res, next) => {
-//     console.log(req.body);
-
-// });
+mongoose
+ 
+    .connect(mongoUri, {
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+    })
+    .then(() => {
+        console.log("connected to mongoDB");
+        app.listen(PORT, () => {
+            console.log("server running on port", PORT);
+        });
+    })
+    .catch((error) => {
+        console.error("MongoDB connection error", error);
+    });
